@@ -23,7 +23,18 @@ class TemplateResource extends Resource
     {
         return $form
             ->schema([
-                //
+            
+                  Forms\Components\FileUpload::make('image')
+                  ->image()
+                  ->disk('public'),
+            
+                 Forms\Components\TextInput::make('name')
+                  ->required()
+                  ->label('name'),
+
+                  Forms\Components\TextInput::make('link')
+                  ->required()
+                  ->label('link'),
             ]);
     }
 

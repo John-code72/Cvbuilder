@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('phone')->nullable(); 
             $table->string('location')->nullable(); 
             $table->string('profile_photo')->nullable();
+            $table->foreignId('template_id')->constrained()->onDelete('cascade'); 
             $table->timestamps();
 
         });

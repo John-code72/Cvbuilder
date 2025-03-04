@@ -18,9 +18,8 @@ class Resume extends Model
         'phone', 
         'location', 
         'profile_photo',
-         'user_id'
-        // Add this line to allow mass assignment for 'profile_photo'
-        // other fields can be added here...
+         'user_id',
+         'template_id'
     ];
        public function skills()
     {
@@ -54,6 +53,11 @@ class Resume extends Model
         return $this->belongsTo(User::class);
     }
 
+
+    public function template()
+    {
+        return $this->belongsTo(Template::class);
+    }
 
     protected static function booted()
 {

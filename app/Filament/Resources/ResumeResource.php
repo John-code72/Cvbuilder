@@ -14,11 +14,16 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Forms\Components\Wizard;
 use App\Models\Experience;
+use App\Models\Template;
 use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Components\Repeater;
 use Joaopaulolndev\FilamentPdfViewer\Infolists\Components\PdfViewerEntry;
 use Filament\Infolists\Infolist;
 use Illuminate\Support\Facades\Storage;
+use IbrahimBougaoua\RadioButtonImage\Actions\RadioButtonImage;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Filament\Actions\Action;
+
 
 class ResumeResource extends Resource
 {
@@ -215,7 +220,7 @@ class ResumeResource extends Resource
                                         ->placeholder('Niveau de votre compétence')
                                         ->helperText('Indiquez le niveau de votre compétence (ex. : Débutant, Intermédiaire, Avancé).'),
                                 ])
-                                ->createItemButtonLabel('Ajouter une compétence'),
+                                ->addActionLabel('Ajouter une compétence'),
                         ]),
     
                     // Sixième étape : Références professionnelles
@@ -247,31 +252,33 @@ class ResumeResource extends Resource
                                         ->label('Email de la référence')
                                         ->placeholder('Email de la personne référente')
                                         ->helperText('Entrez l\'adresse email de la personne référente pour la contacter.'),
-                                ])
-                                ->createItemButtonLabel('Ajouter une référence'),
+                                ])->addActionLabel('Ajouter une référence'),
                         ]),
-    
-                // Fin du Wizard
 
 
 
-                Wizard\Step::make('Références')
+                Wizard\Step::make('Template')
                       
                 ->schema([
 
 
-                    
+                    RadioButtonImage::make('template_id')
+                    ->label('Templates')
+                     ->options(
+                     Template::all()->pluck('image', 'id')->toArray()
+                    )
                     
                 ]),
 
                 ])
 
     
-            ]);
+            ]) ;
+            
     }
     
     
-
+    
 
         
 
@@ -295,6 +302,33 @@ class ResumeResource extends Resource
             ]);
     }
     
+
+ 
+
+
+
+    
+    public static function afterSave($record)
+    {
+        dd($record);
+        
+        // Générer le PDF après que l'enregistrement soit effectué
+        $pdf = PDF::loadView('pdf.template', [
+            'first_name' => $record->first_name,
+            'last_name' => $record->last_name,
+            'email' => $record->email,
+            'languages' => $record->languages,  // Si tu veux inclure les langues
+            'template' => $record->template,
+            // Ajoute d'autres variables nécessaires
+        ]);
+
+        // Sauvegarder le PDF dans le dossier public
+        $pdf->save(storage_path('app/public/user_' . $record->id . '_profile.pdf'));
+
+        // Si tu veux, tu peux aussi envoyer ce PDF par email, ou effectuer d'autres actions
+    }
+
+
 
 
     public static function getRelations(): array
